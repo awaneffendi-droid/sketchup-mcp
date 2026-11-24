@@ -26,11 +26,13 @@ def create_arts_and_crafts_cabinet
   model = Sketchup.active_model
   model.start_operation("Create Arts and Crafts Cabinet", true)
   
-  # Define cabinet dimensions (in inches)
-  width = 36
-  depth = 18
-  height = 72
-  thickness = 0.75
+  # Dimensi lemari dalam milimeter (metrik, standar Indonesia).
+  # Helper .mm membuat SketchUp mengonversi ke satuan internalnya (inci).
+  # Tebal 18 mm = ukuran umum multipleks/blockboard di pasaran Indonesia.
+  width = 900.mm
+  depth = 450.mm
+  height = 1800.mm
+  thickness = 18.mm
   
   # Create a new component definition for the cabinet
   cabinet_def = model.definitions.add("Arts and Crafts Cabinet")
@@ -207,10 +209,10 @@ end
 
 def add_decorative_elements(entities, width, depth, height, thickness)
   # Add characteristic arts and crafts style base
-  base_height = 4
+  base_height = 100.mm
   
   # Create a slightly wider base
-  base_extension = 1
+  base_extension = 25.mm
   base_points = [
     [-base_extension, -base_extension, 0], 
     [width + base_extension, -base_extension, 0], 
@@ -229,8 +231,8 @@ end
 
 def add_corbels(entities, width, depth, height, thickness)
   # Add decorative corbels under the top
-  corbel_height = 3
-  corbel_depth = 2
+  corbel_height = 75.mm
+  corbel_depth = 50.mm
   
   # Left front corbel
   left_corbel_points = [
@@ -255,8 +257,8 @@ end
 
 def add_crown(entities, width, depth, height, thickness)
   # Add a simple crown molding at the top
-  crown_height = 2
-  crown_extension = 1.5
+  crown_height = 50.mm
+  crown_extension = 38.mm
   
   crown_points = [
     [-crown_extension, -crown_extension, height + thickness],

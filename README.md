@@ -71,6 +71,17 @@ Once connected, Claude can interact with Sketchup using the following capabiliti
 * `export_scene` - Export the current scene to various formats
 * `eval_ruby` - Execute arbitrary Ruby code in SketchUp for advanced operations
 
+### Satuan (fork standar Indonesia)
+
+Fork ini memakai **satuan metrik (milimeter)** untuk semua parameter panjang, bukan inci:
+
+* `create_component`: `position` dan `dimensions` dalam mm (default kubus 1000 × 1000 × 1000 mm).
+* `transform_component`: `position` dalam mm; `rotation` dalam derajat; `scale` tanpa satuan.
+* `create_mortise_tenon`, `create_dovetail`, `create_finger_joint`: `width`, `height`, `depth`, dan offset dalam mm (default 25 mm).
+* `eval_ruby`: tulis panjang dengan helper SketchUp seperti `900.mm`, `45.cm`, `2.4.m`. Angka tanpa satuan dibaca SketchUp sebagai inci.
+
+Server MCP mengonversi mm ke inci (satuan internal SketchUp) sebelum mengirim ke ekstensi. Nilai panjang yang dikembalikan oleh kode `eval_ruby` Anda sendiri tetap dalam satuan internal SketchUp (inci) kecuali Anda mengonversinya, mis. `edge.length.to_mm`. Untuk tampilan, atur model ke template metrik: Window → Model Info → Units → Format *Decimal*, *Millimeters*.
+
 ### Example Commands
 
 Here are some examples of what you can ask Claude to do:
@@ -78,7 +89,8 @@ Here are some examples of what you can ask Claude to do:
 * "Create a simple house model with a roof and windows"
 * "Select all components and get their information"
 * "Make the selected component red"
-* "Move the selected component 10 units up"
+* "Geser komponen terpilih 500 mm ke atas"
+* "Buat kolom 300 × 300 mm setinggi 3500 mm"
 * "Export the current scene as a 3D model"
 * "Create a complex arts and crafts cabinet using Ruby code"
 
