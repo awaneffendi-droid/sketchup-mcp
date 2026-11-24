@@ -255,6 +255,21 @@ mcp = FastMCP(
     lifespan=server_lifespan
 )
 
+# Satuan: semua panjang di antarmuka MCP ini dalam MILIMETER (standar Indonesia / SI).
+# SketchUp menyimpan panjang secara internal dalam inci, jadi kita konversi di sini
+# sebelum dikirim ke ekstensi Ruby.
+MM_PER_INCH = 25.4
+
+
+def mm_to_inch(value):
+    """Konversi angka atau list angka dari milimeter ke inci (satuan internal SketchUp)."""
+    if value is None:
+        return None
+    if isinstance(value, (list, tuple)):
+        return [float(v) / MM_PER_INCH for v in value]
+    return float(value) / MM_PER_INCH
+
+
 # Tool endpoints
 @mcp.tool()
 def create_component(
@@ -263,7 +278,11 @@ def create_component(
     position: List[float] = None,
     dimensions: List[float] = None
 ) -> str:
-    """Create a new component in Sketchup"""
+    """Create a new component in SketchUp.
+
+    position: [x, y, z] dalam milimeter (default [0, 0, 0]).
+    dimensions: [lebar, kedalaman, tinggi] dalam milimeter (default [1000, 1000, 1000]).
+    """
     try:
         logger.info(f"create_component called with type={type}, position={position}, dimensions={dimensions}, request_id={ctx.request_id}")
         
@@ -273,8 +292,8 @@ def create_component(
             "name": "create_component",
             "arguments": {
                 "type": type,
-                "position": position or [0,0,0],
-                "dimensions": dimensions or [1,1,1]
+                "position": mm_to_inch(position or [0, 0, 0]),
+                "dimensions": mm_to_inch(dimensions or [1000, 1000, 1000])
             }
         }
         
@@ -320,12 +339,15 @@ def transform_component(
     rotation: List[float] = None,
     scale: List[float] = None
 ) -> str:
-    """Transform a component's position, rotation, or scale"""
+    """Transform a component's position, rotation, or scale.
+
+    position: [x, y, z] dalam milimeter. rotation dalam derajat, scale tanpa satuan.
+    """
     try:
         sketchup = get_sketchup_connection()
         arguments = {"id": id}
         if position is not None:
-            arguments["position"] = position
+            arguments["position"] = mm_to_inch(position)
         if rotation is not None:
             arguments["rotation"] = rotation
         if scale is not None:
@@ -411,14 +433,17 @@ def create_mortise_tenon(
     ctx: Context,
     mortise_id: str,
     tenon_id: str,
-    width: float = 1.0,
-    height: float = 1.0,
-    depth: float = 1.0,
+    width: float = 25.0,
+    height: float = 25.0,
+    depth: float = 25.0,
     offset_x: float = 0.0,
     offset_y: float = 0.0,
     offset_z: float = 0.0
 ) -> str:
-    """Create a mortise and tenon joint between two components"""
+    """Create a mortise and tenon joint between two components.
+
+    width, height, depth, offset_x/y/z dalam milimeter.
+    """
     try:
         logger.info(f"create_mortise_tenon called with mortise_id={mortise_id}, tenon_id={tenon_id}, width={width}, height={height}, depth={depth}, offsets=({offset_x}, {offset_y}, {offset_z})")
         
@@ -431,12 +456,12 @@ def create_mortise_tenon(
                 "arguments": {
                     "mortise_id": mortise_id,
                     "tenon_id": tenon_id,
-                    "width": width,
-                    "height": height,
-                    "depth": depth,
-                    "offset_x": offset_x,
-                    "offset_y": offset_y,
-                    "offset_z": offset_z
+                    "width": mm_to_inch(width),
+                    "height": mm_to_inch(height),
+                    "depth": mm_to_inch(depth),
+                    "offset_x": mm_to_inch(offset_x),
+                    "offset_y": mm_to_inch(offset_y),
+                    "offset_z": mm_to_inch(offset_z)
                 }
             },
             request_id=ctx.request_id
@@ -453,16 +478,19 @@ def create_dovetail(
     ctx: Context,
     tail_id: str,
     pin_id: str,
-    width: float = 1.0,
-    height: float = 1.0,
-    depth: float = 1.0,
+    width: float = 25.0,
+    height: float = 25.0,
+    depth: float = 25.0,
     angle: float = 15.0,
     num_tails: int = 3,
     offset_x: float = 0.0,
     offset_y: float = 0.0,
     offset_z: float = 0.0
 ) -> str:
-    """Create a dovetail joint between two components"""
+    """Create a dovetail joint between two components.
+
+    width, height, depth, offset_x/y/z dalam milimeter.
+    """
     try:
         logger.info(f"create_dovetail called with tail_id={tail_id}, pin_id={pin_id}, width={width}, height={height}, depth={depth}, angle={angle}, num_tails={num_tails}")
         
@@ -475,14 +503,14 @@ def create_dovetail(
                 "arguments": {
                     "tail_id": tail_id,
                     "pin_id": pin_id,
-                    "width": width,
-                    "height": height,
-                    "depth": depth,
+                    "width": mm_to_inch(width),
+                    "height": mm_to_inch(height),
+                    "depth": mm_to_inch(depth),
                     "angle": angle,
                     "num_tails": num_tails,
-                    "offset_x": offset_x,
-                    "offset_y": offset_y,
-                    "offset_z": offset_z
+                    "offset_x": mm_to_inch(offset_x),
+                    "offset_y": mm_to_inch(offset_y),
+                    "offset_z": mm_to_inch(offset_z)
                 }
             },
             request_id=ctx.request_id
@@ -499,15 +527,18 @@ def create_finger_joint(
     ctx: Context,
     board1_id: str,
     board2_id: str,
-    width: float = 1.0,
-    height: float = 1.0,
-    depth: float = 1.0,
+    width: float = 25.0,
+    height: float = 25.0,
+    depth: float = 25.0,
     num_fingers: int = 5,
     offset_x: float = 0.0,
     offset_y: float = 0.0,
     offset_z: float = 0.0
 ) -> str:
-    """Create a finger joint (box joint) between two components"""
+    """Create a finger joint (box joint) between two components.
+
+    width, height, depth, offset_x/y/z dalam milimeter.
+    """
     try:
         logger.info(f"create_finger_joint called with board1_id={board1_id}, board2_id={board2_id}, width={width}, height={height}, depth={depth}, num_fingers={num_fingers}")
         
@@ -520,13 +551,13 @@ def create_finger_joint(
                 "arguments": {
                     "board1_id": board1_id,
                     "board2_id": board2_id,
-                    "width": width,
-                    "height": height,
-                    "depth": depth,
+                    "width": mm_to_inch(width),
+                    "height": mm_to_inch(height),
+                    "depth": mm_to_inch(depth),
                     "num_fingers": num_fingers,
-                    "offset_x": offset_x,
-                    "offset_y": offset_y,
-                    "offset_z": offset_z
+                    "offset_x": mm_to_inch(offset_x),
+                    "offset_y": mm_to_inch(offset_y),
+                    "offset_z": mm_to_inch(offset_z)
                 }
             },
             request_id=ctx.request_id
@@ -543,7 +574,11 @@ def eval_ruby(
     ctx: Context,
     code: str
 ) -> str:
-    """Evaluate arbitrary Ruby code in Sketchup"""
+    """Evaluate arbitrary Ruby code in SketchUp.
+
+    Tulis panjang dengan helper satuan SketchUp agar tetap metrik, mis. `900.mm`, `2.4.m`,
+    `45.cm`. Angka tanpa satuan akan dibaca SketchUp sebagai inci.
+    """
     try:
         logger.info(f"eval_ruby called with code length: {len(code)}")
         

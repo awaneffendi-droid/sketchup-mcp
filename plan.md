@@ -39,7 +39,7 @@ Pocket Hole: Create angled holes for pocket screws
 Implement:
 Grain Direction: Specify and visualize wood grain
 Wood Species: Library of common wood species with appropriate textures and colors
-Board Dimensioning: Convert between nominal and actual lumber dimensions
+Board Dimensioning: Ukuran kayu dan panel metrik pasaran Indonesia (mis. kayu 5/7, 6/12 cm; multipleks 1220×2440 mm, tebal 9/12/15/18 mm), bukan ukuran nominal lumber AS
 Plywood Sheet Optimization: Calculate optimal cutting patterns
 2.3 Hardware
 Implement:
